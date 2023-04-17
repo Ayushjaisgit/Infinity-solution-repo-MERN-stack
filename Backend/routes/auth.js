@@ -46,17 +46,19 @@ router.get('/unallocated-tasks',fetchuser, onController.unallocatedTasks);
 
 // handle assign task
 // Route 2 assign task to employee
-router.patch('/unallocated-tasks/:taskId/assign' ,fetchuser, onController.editunallocatedTasks);
+router.patch('/unallocated-tasks/assign/:taskId' ,fetchuser, onController.editunallocatedTasks);
 // allocated tasks
 // get allocated tasks 
 router.get('/allocated-tasks', fetchuser, onController.allocatedTasks);
+
+// get employee list to assign
+router.get('/employee/list', fetchuser, onController.employeeList);
 
 
 ////////////////////////////////////////////////////////////// Employeee Section ///////////////////////////////////////////////////////////
 // my tasks
 // get employee's tasks
 router.get('/my-tasks',fetchuser,onController.mytasks);
-// done
 // handle change status
 // update task status
 router.patch('/my-tasks/status/:taskId/',fetchuser,onController.changeStatus);

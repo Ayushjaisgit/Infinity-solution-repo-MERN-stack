@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Select, Upload, Button, Form } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Select } from 'antd';
+// import { UploadOutlined } from '@ant-design/icons';
 import { Navbar } from './Navbar';
 import {API_BASE_URL} from '../api'
 import axios from 'axios';
@@ -11,18 +11,18 @@ export const AddRequest = () => {
   const [productType, setProductType] = useState('');
   const [issueType, setIssueType] = useState('');
   const [description, setDescription] = useState('');
-  // const [file, setFile] = useState(null);
+
 
   const handleProductTypeChange = (value) => {
     setProductType(value);
-
+    
     // Reset issue type when product type is changed
     setIssueType('');
   };
-
+  
   const handleIssueTypeChange = (value) => {
     setIssueType(value);
-
+    
   };
 
   const getProductTypeOptions = () => {
@@ -74,22 +74,32 @@ export const AddRequest = () => {
     }
   };
 
+const CustomerUsername = JSON.parse(localStorage.getItem('Customer'))
+const CustomerToken = localStorage.getItem('token')
+
+//// token 
+console.log("CustomerTOKEN======================>",CustomerToken)
+///token
+console.log(CustomerUsername.username)
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
+    formData.append('username', CustomerUsername.username);
     formData.append('productType', productType);
     formData.append('issueType', issueType);
     formData.append('description', description);
-
     try {
-      await axios.post (`${API_BASE_URL}/support-request`, formData);
 
-      const response = await axios.post(`${API_BASE_URL}/login`, {
+      const response = await axios.post(`${API_BASE_URL}/support-request`, {
+        username: CustomerUsername.username ,
         productType: productType,
         issueType: issueType,
         issueDescription: description, 
-      });
+      },formData); 
+      console.log("========",response)
+
       // Show success message or redirect to success page
     } catch (error) {
       console.error(error);

@@ -1,13 +1,9 @@
 import React, {useState} from 'react'
 import axios from 'axios'
-import {API_BASE_URL} from '../api'
+  import {API_BASE_URL} from '../api'
 import './Logins.css'
-// import { Footer } from './Footer'
 import { Navbars } from './Navbars'
 import { useNavigate } from "react-router-dom";
-
-
-
 
 export const Logins = () => {
 
@@ -40,18 +36,23 @@ export const Logins = () => {
         // const handleUserTypeChange = (e) => {
         //   setuserType(e.target.value);
         // };
-        const token = response.data;
-        localStorage.setItem('token', token);
+        const token = response.data.authtoken;
+        const custUser = response.data.user;
+        console.log("data ==========>", token ) 
+        console.log("data ==========>", custUser )
+        
+        localStorage.setItem('token',JSON.stringify(token));
+        localStorage.setItem('Customer',JSON.stringify(custUser));
         
        console.log( localStorage.getItem('token', token))
 
-        axios.interceptors.request.use(
-          config => {
-            config.headers.authorization = `Bearer ${token}`;
-            return config;
-          },
-          error => Promise.reject(error)
-        );
+        // axios.interceptors.request.use(
+        //   config => {
+        //     config.headers.authorization = ` ${token}`;
+        //     return config;
+        //   },
+        //   error => Promise.reject(error)
+        // );
       
 
         if(response){

@@ -13,7 +13,6 @@ const JWT_SECRET = 'This is a string'
 const CustomerRequest = require('../models/CustomerRequest');
 
 //////////////////////////////Customer Request///////////////////////////////////////////////////
-
 const raiseRequest =   async (req, res) => {
     try {
       // get the current user from the request
@@ -31,8 +30,7 @@ const raiseRequest =   async (req, res) => {
       // save the customer request to the database
       await customerRequest.save();
       // send a success response to the client
-      res.send('Your request has been submitted. A customer care executive will be in touch with you soon.');
-      
+      res.send('Your request has been submitted. A customer care executive will be in touch with you soon.');      
     } catch (error) {
       console.error(error);
     // send an error response to the client
@@ -48,7 +46,7 @@ const createUser =  async (req, res) => {
    let user = await User.findOne({ username: username })
    const salt = await bcrypt.genSalt(10) // generating random salt of ten values
    const secPass = await bcrypt.hash(password, salt) // bcrypt.hash is used to initialize the bcrypt
-   
+
    if (user) {
      return res.status(400).json({ error: 'sorry a user with this username already exists' })
     }
@@ -59,8 +57,7 @@ const createUser =  async (req, res) => {
       userType: 'Customer',
     });
     console.log(user)
-    res.send(user)
-    
+    res.send(user) 
   }
 
 ///////////////////////////////////////////////////////Login For Employee, User And Admin Exists///////////////////////////////////
@@ -88,7 +85,9 @@ const createUser =  async (req, res) => {
       const authtoken = jwt.sign(data, JWT_SECRET)
       if(authtoken){
         // edit to send the page of the API
-        res.send(user)
+        // res.send(user)
+        
+        res.send({...data,authtoken})
         // res.redirect('/customer/request');
       } 
     }else if (
@@ -117,9 +116,10 @@ const createUser =  async (req, res) => {
                  id: user.id
              }
          }
+
          const authtoken = jwt.sign(data, JWT_SECRET)
          if(authtoken){
-           res.send(user);
+          res.send({...data,authtoken})
          }
   
       } else if (username === username) {
@@ -143,7 +143,7 @@ const createUser =  async (req, res) => {
         // if employee exists then send authentication token and redirect the non admin employee to his tasks
         const authtoken = jwt.sign(data, JWT_SECRET)
         if(authtoken){
-          res.redirect('/my-tasks');
+          res.send({...data,authtoken})
         }
   
       }
@@ -154,8 +154,8 @@ const createUser =  async (req, res) => {
 
 ////////////////////////////////////////////////Sign Up Endpoint for users only////////////////////////////////////////////////////
   const mytasks = async (req, res) => {
-
-    let UserId = req.body.UserId 
+    // const currentUser = req.user.username
+    const UserId = req.user.id 
     let findData={
       _id: UserId
     }
@@ -166,17 +166,24 @@ const createUser =  async (req, res) => {
   
     let findDocument = await CustomerRequest.findOne({assignedTo:findData})
     console.log("find =>",findDocument)
-  
-    let sendResponse = await CustomerRequest.findOne({ _id:findDocument._id }).populate( "assignedTo" );
-    console.log("send res=>",sendResponse)
-    // console.log(task)
-    if(sendResponse.assignedTo.username === employeeUser.username){
-      const task = await CustomerRequest.find({assignedStatus:true});
-      res.send(task);
-    }else {
+
+    if(!findDocument){
+      res.status(200).send("You have no tasks available right now")
+
+    }else if(findDocument){
+   
+      let sendResponse = await CustomerRequest.findOne({ _id:findDocument._id }).populate( "assignedTo" );
+      console.log("send res=>",sendResponse)
+      // console.log(task)
+      if(sendResponse.assignedTo.username === employeeUser.username){
+        const task = await CustomerRequest.find({assignedStatus:true});
+        res.send(task);
+      
+      }else {
       
       res.status(200).send("You have no tasks available right now")
     }
+  }
   }
   const changeStatus = async(req, res) => {
   
@@ -204,33 +211,51 @@ const createUser =  async (req, res) => {
     let assignResponse = await CustomerRequest.findOneAndUpdate(findData, updateData,{ new:true });
     console.log(assignResponse);
     res.send(assignResponse)
-    res.redirect('/my-tasks');
+    // res.redirect('/my-tasks');
   }
 
 
   
 ////////////////////////////////////////////////////////////////  Admin Operations  ////////////////////////////////////  
 const allocatedTasks =  async(req, res) => {
-  const task = await CustomerRequest.find({assignedStatus:true});
+  const task = await CustomerRequest.find({assignedStatus:true}).populate("assignedTo");
+
+  if(!task){
+    res.json(err)
+  }else{
+    res.send(task)
+  }
+  
+  // res.render('/allocated-tasks');
+}
+const employeeList =  async(req, res) => {
+  const task = await User.find({userType:"Employee"});
+
+  if(!task){
+    res.json(err)
+  }else{
+    res.send(task)
+  }
+  
   // res.render('/allocated-tasks');
 }
 const unallocatedTasks = async (req, res) => {
   const status =  await CustomerRequest.find({assignedStatus:false})
   if(!status){
     res.json(err)
-  }
-  res.send(status)
-  
+  }else{
+    res.send(status)
+  } 
 }
-
 const editunallocatedTasks = async (req, res) => {
   const requestId = req.body.requestId;
+  const employeeName = req.body.employee;
   // const username = req.body.username;
   
   const request = await CustomerRequest.findById(requestId);
   console.log(request);
   
-  const employee = await User.findOne({"username":"TestEmployee"});
+  const employee = await User.findOne({"username":employeeName});
   console.log("employee => ",employee);
 
   if (!request || !employee) {
@@ -250,7 +275,7 @@ const editunallocatedTasks = async (req, res) => {
   let sendResponse = await CustomerRequest.findOne({ _id:assignResponse._id }).populate( "assignedTo" );
 
   console.log("Send Response  => ", sendResponse);
-  res.send(sendResponse.assignedTo.username)
+  // res.send(sendResponse.assignedTo.username)
 
 } 
   exports.raiseRequest = raiseRequest
@@ -261,3 +286,4 @@ const editunallocatedTasks = async (req, res) => {
   exports.unallocatedTasks = unallocatedTasks
   exports.editunallocatedTasks = editunallocatedTasks
   exports.mytasks = mytasks
+  exports.employeeList = employeeList
