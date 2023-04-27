@@ -25,7 +25,7 @@ export const AdminDashboard = () => {
   
   const fetchallocatedTasks = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/allocated-tasks`);
+      const response = await axios.get(`${API_BASE_URL}/allocated-tasks`,{});
       setallocatedTasks(response.data);
       console.log(response)
     } catch (error) {
@@ -40,31 +40,7 @@ export const AdminDashboard = () => {
   },[])
 
   console.log(tasks,'tasks1')
-  // const AllClientMenu =(
-    
-  //   tasks?.map((item, index) => {
-  //     return (
-  //       <Menu.Item
-  //         key={index}
-  //         onClick={() => {
-           
-  //         }}
-  //       >
-  //         <div className="m-auto">{item?.username}</div>
-  //       </Menu.Item>
-  //     );
-  //   })
-  // )
-
-  // const menu = tasks.map((res)=> res.username)
-
-
   
-
-  // const handleAssignTask = (employeeId) => {
-  //   // a PATCH request to the API to assign the selected task to the employee
-  //   message.success(`Assigned task to employee ${employeeId}`);
-  // };
 const getList = async()=>{
   const responseList = await axios.get(`${API_BASE_URL}/employee/list`);
   // const data = await responseList.data.map((d)=>{

@@ -14,6 +14,21 @@ const fetchuser = require('../middleware/FetchUser');
 
 router.post('/createuser', onController.createUser)
 
+router.post('/myEndpoint', (req, res) => {
+  const authToken = req.headers.authorization?.split(' ')[1]; // get token from Authorization header
+  console.log(authToken)  
+  // use authToken to perform any necessary authentication or authorization checks
+  res.send('Success'); // return success response to the frontend
+});
+
+router.get('/myEndpoint', (req, res) => {
+  const authToken = req.headers.authorization?.split(' ')[1]; // get token from Authorization header
+  console.log(authToken)  
+  // use authToken to perform any necessary authentication or authorization checks
+  res.send(authToken); // return success response to the frontend
+});
+
+
 ///////////////////////////////////////////////////////////login when user exists///////////////////////////////////
 // user authentication
 router.post('/login', onController.login);

@@ -16,12 +16,16 @@ export const EmployeePage = ({ employeeId }) => {
   const fetchUnallocatedTasks = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/my-tasks`);
+      // let respo = response.data.split('')
       if(response){
         setTasks(response.data);
+      }else{
+        alert('No Task has been Assigned to You')
       }
 
       console.log(response)
     } catch (error) {
+      alert('No Task has been Assigned to You')
       console.error(error);
     }
   };
@@ -33,7 +37,7 @@ export const EmployeePage = ({ employeeId }) => {
   const columns = [
     {
       title: 'Customer Username',
-      dataIndex: 'customerUsername',
+      dataIndex: 'username',
       key: 'customerUsername',
     },
     {
@@ -60,7 +64,7 @@ export const EmployeePage = ({ employeeId }) => {
   return (
     <>
     <Navbar/>
-      <Table columns={columns} dataSource={tasks} />
+      <Table dataSource={tasks}  columns={columns}  />
     </>
   );
 };

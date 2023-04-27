@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Select } from 'antd';
+import { headers } from '../api'
 // import { UploadOutlined } from '@ant-design/icons';
 import { Navbar } from './Navbar';
 import {API_BASE_URL} from '../api'
@@ -11,6 +12,7 @@ export const AddRequest = () => {
   const [productType, setProductType] = useState('');
   const [issueType, setIssueType] = useState('');
   const [description, setDescription] = useState('');
+  
 
 
   const handleProductTypeChange = (value) => {
@@ -74,32 +76,32 @@ export const AddRequest = () => {
     }
   };
 
-const CustomerUsername = JSON.parse(localStorage.getItem('Customer'))
 const CustomerToken = localStorage.getItem('token')
-
-//// token 
+const Customerusernamme = localStorage.getItem('customer')
 console.log("CustomerTOKEN======================>",CustomerToken)
-///token
-console.log(CustomerUsername.username)
+console.log("CustomerTOKEN======================>",Customerusernamme)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData();
+  formData.append('username', Customerusernamme);
+  formData.append('productType', productType);
+  formData.append('issueType', issueType);
+  formData.append('description', description);
+  try {
+    const response = await axios.post(`${API_BASE_URL}/support-request`,{
+      username: Customerusernamme ,
+      productType: productType,
+      issueType: issueType,
+      issueDescription: description, 
+    },formData); 
+    
 
-    const formData = new FormData();
-    formData.append('username', CustomerUsername.username);
-    formData.append('productType', productType);
-    formData.append('issueType', issueType);
-    formData.append('description', description);
-    try {
 
-      const response = await axios.post(`${API_BASE_URL}/support-request`, {
-        username: CustomerUsername.username ,
-        productType: productType,
-        issueType: issueType,
-        issueDescription: description, 
-      },formData); 
-      console.log("========",response)
-
+      if(response){
+        alert('Your request has been submitted. A customer care executive will be in touch with you soon.')
+      }
+      console.log("========>",response.data)
       // Show success message or redirect to success page
     } catch (error) {
       console.error(error);
@@ -114,7 +116,7 @@ console.log(CustomerUsername.username)
         Contact Support
       </p>
       <h3 className="text-3xl sm:text-4xl leading-normal font-extrabold tracking-tight text-gray-900">
-        New <span className="text-green-600"> Request</span>
+        New <span className="text-green-600"> Request For </span>
       </h3>
   </div>
   
@@ -133,7 +135,7 @@ console.log(CustomerUsername.username)
     
     <div className="flex flex-wrap -mx-3 mb-6">
     <div className="w-full px-3">
-      <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-password">
+      <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-password">
         Issue Description
       </label>
       <textarea  value={description} onChange={(e) => setDescription(e.target.value)}  rows="10" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">

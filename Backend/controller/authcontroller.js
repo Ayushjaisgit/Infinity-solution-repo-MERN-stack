@@ -12,31 +12,8 @@ const JWT_SECRET = 'This is a string'
 
 const CustomerRequest = require('../models/CustomerRequest');
 
-//////////////////////////////Customer Request///////////////////////////////////////////////////
-const raiseRequest =   async (req, res) => {
-    try {
-      // get the current user from the request
-      const currentUser = req.user.username;
-      console.log('Current user =>',currentUser)
-      // create a new customer request from the form data
-      const customerRequest = new CustomerRequest({
-        username: currentUser,
-        productType: req.body.productType,
-        issueType: req.body.issueType,
-        issueDescription: req.body.issueDescription,
-        policyFile: req.body.policyFile
-      });
-      console.log("asdfghjk",customerRequest)
-      // save the customer request to the database
-      await customerRequest.save();
-      // send a success response to the client
-      res.send('Your request has been submitted. A customer care executive will be in touch with you soon.');      
-    } catch (error) {
-      console.error(error);
-    // send an error response to the client
-    return res.status(500).send('Internal Server Error');
-    }
-};
+
+
 
 ////////////////////////////////////////////////Sign Up Endpoint for users only////////////////////////////////////////////////////
 
@@ -59,7 +36,6 @@ const createUser =  async (req, res) => {
     console.log(user)
     res.send(user) 
   }
-
 ///////////////////////////////////////////////////////Login For Employee, User And Admin Exists///////////////////////////////////
 
   const login = async (req, res) => {
@@ -86,8 +62,8 @@ const createUser =  async (req, res) => {
       if(authtoken){
         // edit to send the page of the API
         // res.send(user)
-        
         res.send({...data,authtoken})
+        // return authtoken
         // res.redirect('/customer/request');
       } 
     }else if (
@@ -113,7 +89,8 @@ const createUser =  async (req, res) => {
          }
          const data = {
              user: {
-                 id: user.id
+                 id: user.id,
+                 username: user.username
              }
          }
 
@@ -137,7 +114,8 @@ const createUser =  async (req, res) => {
         }
         const data = {
             user: {
-                id: user.id
+                id: user.id,
+                username: user.username
             }
         }
         // if employee exists then send authentication token and redirect the non admin employee to his tasks
@@ -151,6 +129,35 @@ const createUser =  async (req, res) => {
       res.send('Invalid username or password.');
     }
   };
+
+  //////////////////////////////Customer Request///////////////////////////////////////////////////
+const raiseRequest = async (req, res) => {
+  try {
+    // get the current user from the request
+    const currentUser = req.body.username;
+    console.log('Current user =>',currentUser)
+    // create a new customer request from the form data
+    const customerRequest = await CustomerRequest.create({
+      username: currentUser,
+      productType: req.body.productType,
+      issueType: req.body.issueType,
+      issueDescription: req.body.issueDescription,
+      policyFile: req.body.policyFile
+    });
+    console.log("asdfghjk",customerRequest)
+    // save the customer request to the database
+    // await customerRequest.save();
+
+    // send a success response to the client
+    res.status(200).send("Your request has been submitted. A customer care executive will be in touch with you soon.")
+
+  } catch (error) {
+    console.error(error);
+  // send an error response to the client
+  return res.status(500).send('Internal Server Error');
+  }
+};
+
 
 ////////////////////////////////////////////////Sign Up Endpoint for users only////////////////////////////////////////////////////
   const mytasks = async (req, res) => {
@@ -275,7 +282,7 @@ const editunallocatedTasks = async (req, res) => {
   let sendResponse = await CustomerRequest.findOne({ _id:assignResponse._id }).populate( "assignedTo" );
 
   console.log("Send Response  => ", sendResponse);
-  // res.send(sendResponse.assignedTo.username)
+  res.send(sendResponse)
 
 } 
   exports.raiseRequest = raiseRequest
